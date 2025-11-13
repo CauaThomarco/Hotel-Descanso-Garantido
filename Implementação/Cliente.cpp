@@ -1,4 +1,4 @@
-#include "Headers/Clientes.h"
+#include "../Headers/Clientes.h"
 
 const string ARQUIVO_CLIENTES = "clientes.dat";
 
@@ -193,9 +193,8 @@ bool clienteExiste(int codigo) {
     return false;
 }
 
-// Calcular pontos de fidelidade (será implementado após Estadia)
+// Calcular pontos de fidelidade
 int calcularPontosFidelidade(int codigoCliente) {
-    // Esta função precisa acessar as estadias do cliente
-    // Será implementada depois que Estadia estiver pronta
-    return 0;
+    int totalDiarias = calcularTotalDiariasCliente(codigoCliente);
+    return totalDiarias * 10; // 10 pontos por diária
 }
