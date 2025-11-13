@@ -1,0 +1,68 @@
+# Executáveis
+hotel
+hotel.exe
+*.out
+*.app
+
+# Arquivos objeto
+*.o
+*.obj
+
+# Arquivos de dados binários (podem ser incluídos separadamente para testes)
+*.dat
+
+# Arquivos de compilação
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Arquivos temporários do sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs e Editores
+.vscode/
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.cproject
+.settings/
+
+# Visual Studio
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+.vs/
+
+# Code::Blocks
+*.cbp
+*.layout
+*.depend
+
+# Arquivos de debug
+*.log
+debug/
+release/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+!Makefile # Mantém nosso Makefile customizado
+
+# Arquivos de backup
+*.bak
+*.backup
+*~
+
+# Arquivos de teste temporários
+test_*.dat
+temp_*.dat
