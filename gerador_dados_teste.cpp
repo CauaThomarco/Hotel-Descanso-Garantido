@@ -1,7 +1,18 @@
+// Includes de Bibliotecas Padrão (Faltando)
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+
+// Includes do Projeto
 #include "Headers/Clientes.h"
 #include "Headers/Funcionarios.h"
 #include "Headers/Quarto.h"
 #include "Headers/Estadia.h"
+#include "Headers/Utils.h" // Necessário para limparBuffer
+
+// Namespace (Faltando)
+using namespace std;
 
 /**
  * Script para gerar dados de teste automaticamente
@@ -57,7 +68,8 @@ void gerarFuncionarios() {
         "garçom", "recepcionista"
     };
     
-    float salarios[] = {
+    // CORREÇÃO: Usar double para salarios, como na classe
+    double salarios[] = {
         2500.00, 5000.00, 1800.00, 2000.00, 2500.00
     };
     
@@ -176,70 +188,58 @@ void exibirEstatisticas() {
     cout << "╚════════════════════════════════════════════╝\n\n";
     
     // Contar clientes
-    ifstream arquivoClientes("clientes.dat", ios::binary);
+    ifstream arquivoClientes(ARQUIVO_CLIENTES, ios::binary);
     int totalClientes = 0;
     if (arquivoClientes.is_open()) {
         Cliente c;
-        while (!arquivoClientes.eof()) {
-            try {
-                c.carregarDeArquivo(arquivoClientes);
-                if (c.ativo) totalClientes++;
-            } catch (...) {
-                break;
-            }
+        while (arquivoClientes.peek() != EOF) {
+            c.carregarDeArquivo(arquivoClientes);
+            if (arquivoClientes.eof()) break;
+            if (c.ativo) totalClientes++;
         }
         arquivoClientes.close();
     }
     
     // Contar funcionários
-    ifstream arquivoFuncionarios("funcionarios.dat", ios::binary);
+    ifstream arquivoFuncionarios(ARQUIVO_FUNCIONARIOS, ios::binary);
     int totalFuncionarios = 0;
     if (arquivoFuncionarios.is_open()) {
         Funcionario f;
-        while (!arquivoFuncionarios.eof()) {
-            try {
-                f.carregarDeArquivo(arquivoFuncionarios);
-                if (f.ativo) totalFuncionarios++;
-            } catch (...) {
-                break;
-            }
+        while (arquivoFuncionarios.peek() != EOF) {
+            f.carregarDeArquivo(arquivoFuncionarios);
+            if (arquivoFuncionarios.eof()) break;
+            if (f.ativo) totalFuncionarios++;
         }
         arquivoFuncionarios.close();
     }
     
     // Contar quartos
-    ifstream arquivoQuartos("quartos.dat", ios::binary);
+    ifstream arquivoQuartos(ARQUIVO_QUARTOS, ios::binary);
     int totalQuartos = 0, quartosOcupados = 0;
     if (arquivoQuartos.is_open()) {
         Quarto q;
-        while (!arquivoQuartos.eof()) {
-            try {
-                q.carregarDeArquivo(arquivoQuartos);
-                if (q.ativo) {
-                    totalQuartos++;
-                    if (q.status == OCUPADO) quartosOcupados++;
-                }
-            } catch (...) {
-                break;
+        while (arquivoQuartos.peek() != EOF) {
+            q.carregarDeArquivo(arquivoQuartos);
+            if (arquivoQuartos.eof()) break;
+            if (q.ativo) {
+                totalQuartos++;
+                if (q.status == OCUPADO) quartosOcupados++;
             }
         }
         arquivoQuartos.close();
     }
     
     // Contar estadias
-    ifstream arquivoEstadias("estadias.dat", ios::binary);
+    ifstream arquivoEstadias(ARQUIVO_ESTADIAS, ios::binary);
     int totalEstadias = 0, estadiasAtivas = 0;
     if (arquivoEstadias.is_open()) {
         Estadia e;
-        while (!arquivoEstadias.eof()) {
-            try {
-                e.carregarDeArquivo(arquivoEstadias);
-                if (e.ativa) {
-                    totalEstadias++;
-                    if (e.status == ATIVA) estadiasAtivas++;
-                }
-            } catch (...) {
-                break;
+        while (arquivoEstadias.peek() != EOF) {
+            e.carregarDeArquivo(arquivoEstadias);
+            if (arquivoEstadias.eof()) break;
+            if (e.ativa) {
+                totalEstadias++;
+                if (e.status == ATIVA) estadiasAtivas++;
             }
         }
         arquivoEstadias.close();
@@ -258,14 +258,15 @@ void exibirEstatisticas() {
     cout << "Agora você pode executar ./hotel para testar as funcionalidades.\n\n";
 }
 
+
 int main() {
     cout << "╔════════════════════════════════════════════╗\n";
-    cout << "║   GERADOR DE DADOS DE TESTE               ║\n";
-    cout << "║   Hotel Descanso Garantido                ║\n";
+    cout << "║     GERADOR DE DADOS DE TESTE              ║\n";
+    cout << "║     Hotel Descanso Garantido               ║\n";
     cout << "╚════════════════════════════════════════════╝\n";
     
     char opcao;
-    cout << "\nATENÇÃO: Isso irá criar/sobrescrever os arquivos .dat\n";
+    cout << "\nATENÇÃO: Isso irá apagar e recriar os arquivos .dat\n";
     cout << "Deseja continuar? (s/n): ";
     cin >> opcao;
     
@@ -273,6 +274,12 @@ int main() {
         cout << "Operação cancelada.\n";
         return 0;
     }
+
+    // Apaga os arquivos antigos
+    remove(ARQUIVO_CLIENTES.c_str());
+    remove(ARQUIVO_FUNCIONARIOS.c_str());
+    remove(ARQUIVO_QUARTOS.c_str());
+    remove(ARQUIVO_ESTADIAS.c_str());
     
     gerarClientes();
     gerarFuncionarios();
