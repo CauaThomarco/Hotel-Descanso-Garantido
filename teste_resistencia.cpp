@@ -85,23 +85,52 @@ void teste_datas_invalidas() {
  */
 void teste_sobreposicao_estadia() {
     cout << "\n4. Teste de Sobreposicao de Estadia (Crash Test):\n";
+    cout << "   Preparando ambiente de teste...\n";
+    
     // Pré-condição: Cliente 1 e 2, Quarto 201
     Cliente c2(2, "Cliente Teste 2", "Rua B", "98888-2222");
     cadastrarCliente(c2);
+    cout << "   - Cliente 2 cadastrado\n";
+    
     Quarto q201(201, 2, 200.0);
     cadastrarQuarto(q201);
+    cout << "   - Quarto 201 cadastrado (2 hóspedes, R$ 200/dia)\n";
     
     Data ent(15, 12, 2025, 14);
     Data sai(20, 12, 2025, 12);
+    cout << "   - Período testado: 15/12 a 20/12/2025\n\n";
     
     // Cadastro 1 (Deve funcionar)
+    cout << "   Tentativa 1: Cliente 1, Quarto 201, 15-20/12...\n";
     bool cadastro1 = cadastrarEstadia(1, 2, ent, sai);
     checar(cadastro1, "Sistema cadastrou Estadia 1 (Cliente 1 no Quarto 201).", "Falha ao cadastrar Estadia 1.");
     
-    // Cadastro 2 (Deve falhar)
-    // Mesmo quarto (201), mesmo período, cliente diferente (2)
+    // Cadastro 2 (Deve falhar - mesmo período)
+    cout << "\n   Tentativa 2: Cliente 2, Quarto 201, MESMO período (15-20/12)...\n";
     bool cadastro2 = cadastrarEstadia(2, 2, ent, sai);
-    checar(!cadastro2, "Sistema rejeitou corretamente Estadia 2 (sobreposicao).", "Sistema ACEITOU uma estadia sobreposta.");
+    checar(!cadastro2, "Sistema rejeitou corretamente Estadia 2 (sobreposição total).", "Sistema ACEITOU uma estadia sobreposta!");
+    
+    // Teste adicional: sobreposição parcial
+    cout << "\n   Tentativa 3: Cliente 2, Quarto 201, período parcial (18-22/12)...\n";
+    Data ent2(18, 12, 2025, 14);
+    Data sai2(22, 12, 2025, 12);
+    bool cadastro3 = cadastrarEstadia(2, 2, ent2, sai2);
+    checar(!cadastro3, "Sistema rejeitou corretamente Estadia 3 (sobreposição parcial).", "Sistema ACEITOU uma estadia com sobreposição parcial!");
+}
+
+/**
+ * @brief Teste 5: Verifica se o sistema aceita estadias em períodos não sobrepostos
+ */
+void teste_periodo_valido() {
+    cout << "\n5. Teste de Período Válido (Não Sobreposto):\n";
+    
+    // Cliente 2 deve conseguir fazer uma reserva DEPOIS da estadia do Cliente 1
+    Data ent(21, 12, 2025, 14); // Um dia após o checkout do Cliente 1
+    Data sai(25, 12, 2025, 12);
+    
+    cout << "   Tentando cadastrar Cliente 2 no Quarto 201 de 21-25/12...\n";
+    bool cadastro = cadastrarEstadia(2, 2, ent, sai);
+    checar(cadastro, "Sistema aceitou corretamente estadia em período livre.", "Sistema rejeitou incorretamente uma estadia válida!");
 }
 
 // --- MAIN ---
@@ -130,26 +159,44 @@ int main() {
 
     cout << "\nIniciando testes...\n";
 
-    try {
-        // Executa a sequência de testes
-        teste_duplicidade_quarto();
-        teste_integridade_cliente();
-        teste_datas_invalidas();
-        teste_sobreposicao_estadia();
+    int testesFalhos = 0;
+    int testesPassados = 0;
 
-        // Se chegou aqui, tudo passou
-        cout << "\n------------------------------------------------\n";
-        cout << "✅  SUCESSO! Todos os testes de resistencia passaram.\n";
-        cout << "   O sistema lidou com dados invalidos sem travar.\n";
-        cout << "------------------------------------------------\n";
-        
-    } catch (const exception& e) {
-        // Se a função checar() lançou um erro, o teste falhou.
-        cout << "\n------------------------------------------------\n";
-        cout << "❌  FALHA! O teste de resistencia foi interrompido:\n";
-        cout << "   " << e.what() << endl;
-        cout << "------------------------------------------------\n";
+    // Lista de testes
+    vector<pair<string, void(*)()>> testes = {
+        {"Duplicidade de Quarto", teste_duplicidade_quarto},
+        {"Integridade de Cliente", teste_integridade_cliente},
+        {"Datas Inválidas", teste_datas_invalidas},
+        {"Sobreposição de Estadia", teste_sobreposicao_estadia},
+        {"Período Válido", teste_periodo_valido}
+    };
+
+    for (const auto& teste : testes) {
+        try {
+            teste.second();
+            testesPassados++;
+        } catch (const exception& e) {
+            testesFalhos++;
+            cout << "   ⚠️  Teste '" << teste.first << "' falhou.\n";
+        }
     }
+
+    // Relatório final
+    cout << "\n================================================\n";
+    cout << "               RELATÓRIO FINAL                  \n";
+    cout << "================================================\n";
+    cout << "Testes executados: " << (testesPassados + testesFalhos) << endl;
+    cout << "✅ Passaram: " << testesPassados << endl;
+    cout << "❌ Falharam: " << testesFalhos << endl;
+    
+    if (testesFalhos == 0) {
+        cout << "\n🎉 SUCESSO TOTAL! Todos os testes passaram.\n";
+        cout << "   O sistema está resistente a dados inválidos.\n";
+    } else {
+        cout << "\n⚠️  ATENÇÃO: Alguns testes falharam.\n";
+        cout << "   Revise o código para corrigir os problemas.\n";
+    }
+    cout << "================================================\n";
 
     // Limpa os arquivos de teste
     remove(ARQUIVO_CLIENTES.c_str());
@@ -157,5 +204,5 @@ int main() {
     remove(ARQUIVO_QUARTOS.c_str());
     remove(ARQUIVO_ESTADIAS.c_str());
 
-    return 0;
+    return testesFalhos; // Retorna 0 se tudo passou, caso contrário o número de falhas
 }

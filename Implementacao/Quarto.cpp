@@ -220,36 +220,15 @@ Quarto buscarQuartoDisponivel(int qtdHospedes, const Data& entrada, const Data& 
         // 1ª Condição: Quarto ativo e com capacidade
         if (quarto.ativo && quarto.maxHospedes >= qtdHospedes) {
             
-            // 2ª Condição: Se estiver desocupado, é uma opção válida.
-            if (quarto.status == DESOCUPADO) {
-                // Agora, precisamos verificar se ele não está reservado para aquele período
-                
-                bool conflito = false;
-                ifstream arqEstadias(ARQUIVO_ESTADIAS, ios::binary);
-                if (arqEstadias.is_open()) {
-                    Estadia estadia;
-                    while (arqEstadias.peek() != EOF) {
-                        estadia.carregarDeArquivo(arqEstadias);
-                        if (arqEstadias.eof()) break;
-                        
-                        // Verifica se a estadia (no mesmo quarto) se sobrepõe
-                        if (estadia.numeroQuarto == quarto.numero) {
-                            if (periodosSeSobrepoe(entrada, saida, estadia.dataEntrada, estadia.dataSaida)) {
-                                conflito = true;
-                                break; // Já achou conflito, não precisa procurar mais
-                            }
-                        }
-                    }
-                    arqEstadias.close();
-                }
-
-                // Se não achou NENHUM conflito
-                if (!conflito) {
-                    arqQuartos.close();
-                    return quarto; // Encontrou um quarto 100% válido!
-                }
-                // Se achou conflito, continua o loop 'while' para o próximo quarto
+            // CORREÇÃO CRÍTICA: Sempre verificar disponibilidade no período
+            // independente do status atual do quarto
+            
+            // Usa a função verificarDisponibilidadeQuarto que já existe em Estadia.cpp
+            if (verificarDisponibilidadeQuarto(quarto.numero, entrada, saida)) {
+                arqQuartos.close();
+                return quarto; // Encontrou um quarto disponível!
             }
+            // Se não está disponível para o período, continua procurando
         }
     }
 
