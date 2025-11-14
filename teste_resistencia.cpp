@@ -3,9 +3,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <iomanip> // Para setprecision
-#include <stdexcept> // Para std::runtime_error
-
+#include <iomanip> 
+#include <stdexcept>
+#include <windows.h>
 // Includes do Projeto
 #include "Headers/Clientes.h"
 #include "Headers/Funcionarios.h"
@@ -136,6 +136,8 @@ void teste_periodo_valido() {
 // --- MAIN ---
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);       
     cout << "╔════════════════════════════════════════════╗\n";
     cout << "║     TESTE DE RESISTENCIA DO SISTEMA        ║\n";
     cout << "║     Hotel Descanso Garantido               ║\n";

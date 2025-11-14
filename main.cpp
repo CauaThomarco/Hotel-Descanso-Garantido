@@ -7,8 +7,7 @@
 #include <limits>
 #include <iomanip>
 #include <fstream>
-#include <clocale>
-
+#include <windows.h>
 // -------------------------------------------------
 // Cabeçalhos do Projeto
 // -------------------------------------------------
@@ -25,7 +24,7 @@ using namespace std;
 void exibirMenuPrincipal() {
     cout << "\n";
     cout << "╔════════════════════════════════════════════╗\n";
-    cout << "║   HOTEL DESCANSO GARANTIDO - SISTEMA      ║\n";
+    cout << "║   HOTEL DESCANSO GARANTIDO - SISTEMA       ║\n";
     cout << "╚════════════════════════════════════════════╝\n";
     cout << "\n[1] Cadastrar Cliente\n";
     cout << "[2] Cadastrar Funcionário\n";
@@ -293,7 +292,8 @@ void menuCalcularPontosFidelidade() {
 // --- Função Main (Loop Principal) ---
 
 int main() {
-    setlocale(LC_ALL, "Portuguese");
+    SetConsoleOutputCP(CP_UTF8); 
+    SetConsoleCP(CP_UTF8);       
     int opcao;
     
     do {

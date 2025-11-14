@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-
+#include <windows.h>
 // Includes do Projeto
 #include "Headers/Clientes.h"
 #include "Headers/Funcionarios.h"
@@ -260,6 +260,8 @@ void exibirEstatisticas() {
 
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);       
     cout << "╔════════════════════════════════════════════╗\n";
     cout << "║     GERADOR DE DADOS DE TESTE              ║\n";
     cout << "║     Hotel Descanso Garantido               ║\n";
