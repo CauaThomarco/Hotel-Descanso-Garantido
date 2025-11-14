@@ -12,7 +12,7 @@
 using namespace std;
 
 // --- ARQUIVO DE DADOS ---
-const string ARQUIVO_CLIENTES = "clientes.dat";
+const string ARQUIVO_CLIENTES = "clientes.bin";
 
 // --- IMPLEMENTAÇÃO DOS CONSTRUTORES ---
 Cliente::Cliente() : codigo(0), ativo(true) {

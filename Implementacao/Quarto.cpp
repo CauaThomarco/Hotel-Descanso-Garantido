@@ -13,7 +13,7 @@
 using namespace std;
 
 // --- ARQUIVO DE DADOS ---
-const string ARQUIVO_QUARTOS = "quartos.dat";
+const string ARQUIVO_QUARTOS = "quartos.bin";
 
 // --- IMPLEMENTAÇÃO DOS CONSTRUTORES ---
 Quarto::Quarto() 

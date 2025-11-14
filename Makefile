@@ -85,7 +85,7 @@ ifeq ($(SISTEMA),Windows)
 	@echo Limpando arquivos no Windows...
 	-@$(RM) *.o 2> $(NULL) || true
 	-@$(RM) *.exe 2> $(NULL) || true
-	-@$(RM) *.dat 2> $(NULL) || true
+	-@$(RM) *.bin 2> $(NULL) || true
 	-@$(RM) $(SRC_DIR)$(SEP)*.o 2> $(NULL) || true
 else
 	@echo Limpando arquivos no Linux...
@@ -94,7 +94,7 @@ else
 	-@$(RM) hotel
 	-@$(RM) gerador_teste
 	-@$(RM) teste_resistencia
-	-@$(RM) *.dat
+	-@$(RM) *.bin
 	-@$(RM) $(SRC_DIR)/*.o
 endif
 	@echo Arquivos limpos!
@@ -102,9 +102,9 @@ endif
 # Limpar apenas dados
 clean-data:
 ifeq ($(SISTEMA),Windows)
-	-@$(RM) *.dat 2> $(NULL) || true
+	-@$(RM) *.bin 2> $(NULL) || true
 else
-	-@$(RM) *.dat
+	-@$(RM) *.bin
 endif
 	@echo Arquivos de dados removidos!
 

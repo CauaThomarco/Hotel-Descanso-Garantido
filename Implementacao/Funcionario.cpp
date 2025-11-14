@@ -12,7 +12,7 @@
 using namespace std;
 
 // --- ARQUIVO DE DADOS ---
-const string ARQUIVO_FUNCIONARIOS = "funcionarios.dat";
+const string ARQUIVO_FUNCIONARIOS = "funcionarios.bin";
 
 // --- IMPLEMENTAÇÃO DOS CONSTRUTORES ---
 Funcionario::Funcionario() : codigo(0), salario(0.0), ativo(true) {

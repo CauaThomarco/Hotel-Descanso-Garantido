@@ -13,7 +13,7 @@
 
 using namespace std;
 
-const string ARQUIVO_ESTADIAS = "estadias.dat";
+const string ARQUIVO_ESTADIAS = "estadias.bin";
 
 Estadia::Estadia() 
     : codigoEstadia(0), quantidadeDiarias(0), codigoCliente(0), numeroQuarto(0), status(ATIVA), ativa(true) {
