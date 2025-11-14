@@ -7,7 +7,7 @@ CXX = g++
 CXXFLAGS = -std=c++11 -Wall -I.
 
 # Diretórios
-SRC_DIR = Implementação
+SRC_DIR = Implementacao
 HEADER_DIR = Headers
 
 # Arquivos fonte

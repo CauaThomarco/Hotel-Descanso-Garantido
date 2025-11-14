@@ -1,7 +1,25 @@
+// -------------------------------------------------
+// Bibliotecas Padrão
+// -------------------------------------------------
+#include <iostream>
+#include <string>
+#include <vector>
+#include <limits>
+#include <iomanip>
+#include <fstream>
+
+// -------------------------------------------------
+// Cabeçalhos do Projeto
+// -------------------------------------------------
 #include "Headers/Clientes.h"
 #include "Headers/Funcionarios.h"
 #include "Headers/Quarto.h"
 #include "Headers/Estadia.h"
+#include "Headers/Utils.h" // Para pausar(), limparBuffer(), lerData()
+
+using namespace std;
+
+// --- Funções de Menu (Corrigidas para passar argumentos) ---
 
 void exibirMenuPrincipal() {
     cout << "\n";
@@ -29,21 +47,25 @@ void exibirMenuPrincipal() {
 void menuCadastrarCliente() {
     cout << "\n=== CADASTRAR CLIENTE ===\n";
     
-    Cliente cliente;
-    cliente.codigo = gerarCodigoCliente();
+    int codigo = gerarCodigoCliente();
+    cout << "Código gerado automaticamente: " << codigo << endl;
     
-    cout << "Código gerado automaticamente: " << cliente.codigo << endl;
+    string nome, endereco, telefone;
     
-    limparBuffer();
+    limparBuffer(); // Limpa o buffer antes de ler strings
     cout << "Nome: ";
-    getline(cin, cliente.nome);
+    getline(cin, nome);
     
     cout << "Endereço: ";
-    getline(cin, cliente.endereco);
+    getline(cin, endereco);
     
     cout << "Telefone: ";
-    getline(cin, cliente.telefone);
+    getline(cin, telefone);
+
+    // Cria o objeto Cliente usando o construtor
+    Cliente cliente(codigo, nome, endereco, telefone);
     
+    // Passa o objeto pronto para a função
     cadastrarCliente(cliente);
     pausar();
 }
@@ -51,24 +73,27 @@ void menuCadastrarCliente() {
 void menuCadastrarFuncionario() {
     cout << "\n=== CADASTRAR FUNCIONÁRIO ===\n";
     
-    Funcionario funcionario;
-    funcionario.codigo = gerarCodigoFuncionario();
-    
-    cout << "Código gerado automaticamente: " << funcionario.codigo << endl;
-    
+    int codigo = gerarCodigoFuncionario();
+    cout << "Código gerado automaticamente: " << codigo << endl;
+
+    string nome, telefone, cargo;
+    double salario;
+
     limparBuffer();
     cout << "Nome: ";
-    getline(cin, funcionario.nome);
+    getline(cin, nome);
     
     cout << "Telefone: ";
-    getline(cin, funcionario.telefone);
+    getline(cin, telefone);
     
-    cout << "Cargo (recepcionista/auxiliar de limpeza/garçom/gerente): ";
-    getline(cin, funcionario.cargo);
+    cout << "Cargo: ";
+    getline(cin, cargo);
     
     cout << "Salário: R$ ";
-    cin >> funcionario.salario;
+    cin >> salario;
     
+    // Cria o objeto Funcionario e passa para a função
+    Funcionario funcionario(codigo, nome, telefone, cargo, salario);
     cadastrarFuncionario(funcionario);
     pausar();
 }
@@ -76,17 +101,20 @@ void menuCadastrarFuncionario() {
 void menuCadastrarQuarto() {
     cout << "\n=== CADASTRAR QUARTO ===\n";
     
-    Quarto quarto;
-    
+    int numero, maxHospedes;
+    double valorDiaria;
+
     cout << "Número do quarto: ";
-    cin >> quarto.numero;
+    cin >> numero;
     
-    cout << "Quantidade de hóspedes: ";
-    cin >> quarto.quantidadeHospedes;
+    cout << "Quantidade máxima de hóspedes: ";
+    cin >> maxHospedes;
     
     cout << "Valor da diária: R$ ";
-    cin >> quarto.valorDiaria;
+    cin >> valorDiaria;
     
+    // Cria o objeto Quarto e passa para a função
+    Quarto quarto(numero, maxHospedes, valorDiaria);
     cadastrarQuarto(quarto);
     pausar();
 }
@@ -102,12 +130,11 @@ void menuCadastrarEstadia() {
     cout << "Quantidade de hóspedes: ";
     cin >> qtdHospedes;
     
+    // Usa a função de Utils.cpp para ler as datas
     Data entrada = lerData("Data de entrada (Check-in às 14h):");
-    entrada.hora = 14;
-    
     Data saida = lerData("Data de saída (Check-out às 12h):");
-    saida.hora = 12;
     
+    // Passa os argumentos para a função
     cadastrarEstadia(codigoCliente, qtdHospedes, entrada, saida);
     pausar();
 }
@@ -119,6 +146,7 @@ void menuDarBaixaEstadia() {
     cout << "Código da estadia: ";
     cin >> codigoEstadia;
     
+    // Passa o código para a função
     darBaixaEstadia(codigoEstadia);
     pausar();
 }
@@ -137,10 +165,9 @@ void menuPesquisarCliente() {
         cout << "Código do cliente: ";
         cin >> codigo;
         
-        Cliente* cliente = buscarClientePorCodigo(codigo);
-        if (cliente != nullptr) {
-            cliente->exibir();
-            delete cliente;
+        Cliente cliente = buscarClientePorCodigo(codigo);
+        if (cliente.codigo != -1) { // -1 significa "não encontrado"
+            cliente.exibir();
         } else {
             cout << "Cliente não encontrado!" << endl;
         }
@@ -177,10 +204,9 @@ void menuPesquisarFuncionario() {
         cout << "Código do funcionário: ";
         cin >> codigo;
         
-        Funcionario* funcionario = buscarFuncionarioPorCodigo(codigo);
-        if (funcionario != nullptr) {
-            funcionario->exibir();
-            delete funcionario;
+        Funcionario funcionario = buscarFuncionarioPorCodigo(codigo);
+        if (funcionario.codigo != -1) { // -1 significa "não encontrado"
+            funcionario.exibir();
         } else {
             cout << "Funcionário não encontrado!" << endl;
         }
@@ -218,15 +244,13 @@ void menuListarEstadiasCliente() {
         int codigo;
         cout << "Código do cliente: ";
         cin >> codigo;
-        
-        estadias = listarEstadiasCliente(codigo);
+        estadias = listarEstadiaCliente(codigo);
     } else if (opcao == 2) {
         limparBuffer();
         string nome;
         cout << "Nome do cliente (ou parte dele): ";
         getline(cin, nome);
-        
-        estadias = listarEstadiasClientePorNome(nome);
+        estadias = listarEstadiaClientePorNome(nome);
     }
     
     if (estadias.empty()) {
@@ -248,23 +272,24 @@ void menuCalcularPontosFidelidade() {
     cout << "Código do cliente: ";
     cin >> codigo;
     
-    Cliente* cliente = buscarClientePorCodigo(codigo);
-    if (cliente == nullptr) {
+    Cliente cliente = buscarClientePorCodigo(codigo);
+    if (cliente.codigo == -1) {
         cout << "Cliente não encontrado!" << endl;
     } else {
+        // Chama a função do módulo Estadia
         int pontos = calcularPontosFidelidade(codigo);
         int totalDiarias = calcularTotalDiariasCliente(codigo);
         
-        cout << "\nCliente: " << cliente->nome << endl;
-        cout << "Total de diárias: " << totalDiarias << endl;
+        cout << "\nCliente: " << cliente.nome << endl;
+        cout << "Total de diárias (passadas e ativas): " << totalDiarias << endl;
         cout << "Pontos de fidelidade: " << pontos << " pontos" << endl;
         cout << "(10 pontos por diária)\n";
-        
-        delete cliente;
     }
     
     pausar();
 }
+
+// --- Função Main (Loop Principal) ---
 
 int main() {
     int opcao;
@@ -272,6 +297,12 @@ int main() {
     do {
         exibirMenuPrincipal();
         cin >> opcao;
+        
+        if (cin.fail()) {
+            cin.clear();
+            limparBuffer();
+            opcao = -1; // Força erro no default
+        }
         
         switch (opcao) {
             case 1:
