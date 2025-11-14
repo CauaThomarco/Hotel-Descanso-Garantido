@@ -7,6 +7,7 @@
 #include <limits>
 #include <iomanip>
 #include <fstream>
+#include <clocale>
 
 // -------------------------------------------------
 // Cabeçalhos do Projeto
@@ -292,6 +293,7 @@ void menuCalcularPontosFidelidade() {
 // --- Função Main (Loop Principal) ---
 
 int main() {
+    setlocale(LC_ALL, "Portuguese");
     int opcao;
     
     do {

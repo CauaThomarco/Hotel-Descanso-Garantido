@@ -1,46 +1,40 @@
 #include "../Headers/Estadia.h"
 
-// --- INCLUDES NECESSÁRIOS (Faltando) ---
-#include <iostream>     // Para cout, endl
-#include <fstream>      // Para ifstream, ofstream
-#include <iomanip>    // Para setprecision
-#include <string>       // Para string
-#include <vector>       // Para vector
-#include <cstring>      // Para memset (se necessário)
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <string>
+#include <vector>
+#include <cstring>
 
-// --- INCLUDES DOS MÓDULOS (Faltando) ---
 #include "../Headers/Clientes.h"
 #include "../Headers/Quarto.h"
 #include "../Headers/Utils.h"
 
 using namespace std;
 
-// --- CONSTANTE GLOBAL (Definição) ---
 const string ARQUIVO_ESTADIAS = "estadias.dat";
 
-// --- IMPLEMENTAÇÃO DOS CONSTRUTORES ---
 Estadia::Estadia() 
     : codigoEstadia(0), quantidadeDiarias(0), codigoCliente(0), numeroQuarto(0), status(ATIVA), ativa(true) {
-    // Construtor padrão
 }
 
-// Assinatura corrigida para corresponder ao .h
 Estadia::Estadia(int codEstadia, const Data& entrada, const Data& saida, int codCliente, int numQuarto)
     : codigoEstadia(codEstadia), dataEntrada(entrada), dataSaida(saida), 
       codigoCliente(codCliente), numeroQuarto(numQuarto), status(ATIVA), ativa(true) 
 {
-    // Calcula as diárias (usa a função de Utils.cpp)
     quantidadeDiarias = calcularDiarias(entrada, saida);
 }
 
-// --- IMPLEMENTAÇÃO DOS MÉTODOS ---
 void Estadia::exibir() const {
     if (!ativa) return;
     cout << "\n========== ESTADIA ==========\n";
-    cout << "Codigo: " << codigoEstadia << endl; // Corrigido
+    cout << "Codigo: " << codigoEstadia << endl;
     cout << "Cliente (Codigo): " << codigoCliente << endl;
     cout << "Quarto (Numero): " << numeroQuarto << endl;
+    cout << "Data de entrada: ";
     dataEntrada.exibir();
+    cout << "Data de saida: ";
     dataSaida.exibir();
     cout << "Diarias: " << quantidadeDiarias << endl;
     cout << fixed << setprecision(2);
@@ -49,14 +43,12 @@ void Estadia::exibir() const {
     cout << "=============================\n";
 }
 
-// Implementação Faltando
 double Estadia::calcularValorTotal() const {
-    // Busca o quarto para saber o valor da diária
     Quarto q = buscarQuartoPorNumero(numeroQuarto);
     if (q.numero != -1) {
         return q.valorDiaria * this->quantidadeDiarias;
     }
-    return 0.0; // Se o quarto não for encontrado (erro)
+    return 0.0;
 }
 
 void Estadia::salvarEmArquivo(ofstream& arquivo) const {
@@ -66,8 +58,6 @@ void Estadia::salvarEmArquivo(ofstream& arquivo) const {
 void Estadia::carregarDeArquivo(ifstream& arquivo) {
     arquivo.read(reinterpret_cast<char*>(this), sizeof(Estadia));
 }
-
-// --- IMPLEMENTAÇÃO DAS FUNÇÕES DO MÓDULO ---
 
 int gerarCodigoEstadia() {
     ifstream arquivo(ARQUIVO_ESTADIAS, ios::binary | ios::ate);
@@ -80,14 +70,13 @@ int gerarCodigoEstadia() {
     Estadia ultimaEstadia;
     ultimaEstadia.carregarDeArquivo(arquivo);
     arquivo.close();
-    return ultimaEstadia.codigoEstadia + 1; // Corrigido
+    return ultimaEstadia.codigoEstadia + 1;
 }
 
-// Função auxiliar (usada por Quarto.cpp e Estadia.cpp)
 bool verificarDisponibilidadeQuarto(int numeroQuarto, const Data& entrada, const Data& saida) {
     ifstream arquivo(ARQUIVO_ESTADIAS, ios::binary);
     if (!arquivo.is_open()) {
-        return true; // Arquivo não existe, então está disponível
+        return true; // Se não há arquivo, está disponível
     }
 
     Estadia estadia;
@@ -95,18 +84,17 @@ bool verificarDisponibilidadeQuarto(int numeroQuarto, const Data& entrada, const
         estadia.carregarDeArquivo(arquivo);
         if (arquivo.eof()) break;
 
-        // Se a estadia é no mesmo quarto, está ativa E os períodos conflitam
+        // Verifica conflitos apenas com estadias ativas no mesmo quarto
         if (estadia.numeroQuarto == numeroQuarto && estadia.ativa && estadia.status == ATIVA) {
             if (periodosSeSobrepoe(entrada, saida, estadia.dataEntrada, estadia.dataSaida)) {
                 arquivo.close();
-                return false; // Conflito! Quarto indisponível.
+                return false; // Há conflito
             }
         }
     }
     arquivo.close();
-    return true; // Nenhum conflito encontrado
+    return true; // Sem conflitos
 }
-
 
 bool cadastrarEstadia(int codigoCliente, int qtdHospedes, const Data& entrada, const Data& saida) {
     
@@ -126,19 +114,17 @@ bool cadastrarEstadia(int codigoCliente, int qtdHospedes, const Data& entrada, c
         return false;
     }
     
-    // 3. Buscar Quarto (usa a função de Quarto.cpp)
+    // 3. Buscar Quarto disponível
     Quarto quarto = buscarQuartoDisponivel(qtdHospedes, entrada, saida);
     
-    if (quarto.numero == -1) { // -1 é o sinal de "não encontrado"
+    if (quarto.numero == -1) {
         cout << "Erro: Nenhum quarto disponivel para " << qtdHospedes
              << " hospedes nesse periodo." << endl;
         return false;
     }
     
-    // 4. Se tudo OK, criar e salvar a estadia
+    // 4. Criar e salvar a estadia
     int codigoEstadia = gerarCodigoEstadia();
-    
-    // Assinatura corrigida
     Estadia estadia(codigoEstadia, entrada, saida, codigoCliente, quarto.numero);
     
     ofstream arquivo(ARQUIVO_ESTADIAS, ios::binary | ios::app);
@@ -150,18 +136,19 @@ bool cadastrarEstadia(int codigoCliente, int qtdHospedes, const Data& entrada, c
     estadia.salvarEmArquivo(arquivo);
     arquivo.close();
 
-    // 5. Alterar status do quarto para OCUPADO
-    alterarStatusQuarto(quarto.numero, OCUPADO);
+    // CORREÇÃO: NÃO alterar o status do quarto automaticamente
+    // O status só deve mudar quando o hóspede fizer check-in/check-out físico
+    // Isso estava causando o bug de não permitir reservas futuras
 
     cout << "\n=== ESTADIA CADASTRADA COM SUCESSO! ===" << endl;
-    cout << "Quarto " << quarto.numero << " alocado." << endl;
+    cout << "Codigo da Estadia: " << codigoEstadia << endl;
+    cout << "Quarto " << quarto.numero << " reservado." << endl;
     cout << fixed << setprecision(2);
     cout << "Valor total: R$ " << estadia.calcularValorTotal() << endl;
 
     return true;
 }
 
-// Assinatura corrigida para VOID (como no main.cpp)
 void darBaixaEstadia(int codigoEstadia) {
     ifstream arquivoLeitura(ARQUIVO_ESTADIAS, ios::binary);
     if (!arquivoLeitura.is_open()) {
@@ -169,22 +156,18 @@ void darBaixaEstadia(int codigoEstadia) {
         return;
     }
 
-    // Lê todas as estadias para a memória
     vector<Estadia> estadias;
     Estadia estadia;
     bool encontrada = false;
     double valorTotal = 0.0;
-    int numeroQuarto = -1;
 
     while (arquivoLeitura.peek() != EOF) {
         estadia.carregarDeArquivo(arquivoLeitura);
         if (arquivoLeitura.eof()) break;
 
-        // Encontra a estadia, marca como finalizada e armazena os dados
         if (estadia.codigoEstadia == codigoEstadia && estadia.ativa && estadia.status == ATIVA) {
             estadia.status = FINALIZADA;
             valorTotal = estadia.calcularValorTotal();
-            numeroQuarto = estadia.numeroQuarto;
             encontrada = true;
         }
         estadias.push_back(estadia);
@@ -196,21 +179,16 @@ void darBaixaEstadia(int codigoEstadia) {
         return;
     }
 
-    // Reescreve o arquivo com a estadia modificada
     ofstream arquivoEscrita(ARQUIVO_ESTADIAS, ios::binary | ios::trunc);
     for (const auto& e : estadias) {
         e.salvarEmArquivo(arquivoEscrita);
     }
     arquivoEscrita.close();
 
-    // Altera o status do quarto para DESOCUPADO
-    alterarStatusQuarto(numeroQuarto, DESOCUPADO);
-
     cout << "\n=== BAIXA REALIZADA COM SUCESSO! ===" << endl;
     cout << fixed << setprecision(2);
     cout << "Valor total a ser pago: R$ " << valorTotal << endl;
 }
-
 
 vector<Estadia> listarEstadiaCliente(int codigoCliente) {
     vector<Estadia> estadiasEncontradas;
@@ -235,16 +213,13 @@ vector<Estadia> listarEstadiaCliente(int codigoCliente) {
 vector<Estadia> listarEstadiaClientePorNome(const string& nomeCliente) {
     vector<Estadia> estadiasEncontradas;
     
-    // 1. Acha todos os clientes com aquele nome
     vector<Cliente> clientes = buscarClientesPorNome(nomeCliente);
     if (clientes.empty()) {
-        return estadiasEncontradas; // Nenhum cliente, nenhuma estadia
+        return estadiasEncontradas;
     }
 
-    // 2. Para cada cliente, busca suas estadias
     for (const auto& cliente : clientes) {
         vector<Estadia> estadiasDoCliente = listarEstadiaCliente(cliente.codigo);
-        // Adiciona as estadias encontradas ao vetor principal
         estadiasEncontradas.insert(estadiasEncontradas.end(), 
                                   estadiasDoCliente.begin(), 
                                   estadiasDoCliente.end());
@@ -292,7 +267,6 @@ int calcularTotalDiariasCliente(int codigoCliente) {
         estadia.carregarDeArquivo(arquivo);
         if (arquivo.eof()) break;
 
-        // Soma diárias de estadias ATIVAS e FINALIZADAS
         if (estadia.ativa && estadia.codigoCliente == codigoCliente) {
             totalDiarias += estadia.quantidadeDiarias;
         }
@@ -302,6 +276,5 @@ int calcularTotalDiariasCliente(int codigoCliente) {
 }
 
 int calcularPontosFidelidade(int codigoCliente) {
-    // A lógica é a mesma do PDF
     return calcularTotalDiariasCliente(codigoCliente) * 10;
 }
