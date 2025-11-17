@@ -82,39 +82,48 @@ void teste_datas_invalidas() {
 /**
  * @brief Teste 4: Tenta cadastrar duas estadias no mesmo quarto e mesmo período.
  * O sistema deve aceitar a primeira e rejeitar a segunda.
+ * 
+ * CORREÇÃO: Para garantir que ambas as estadias tentam usar o MESMO quarto,
+ * vamos usar um quarto ÚNICO com capacidade específica que só ele atende.
  */
 void teste_sobreposicao_estadia() {
     cout << "\n4. Teste de Sobreposicao de Estadia (Crash Test):\n";
     cout << "   Preparando ambiente de teste...\n";
     
-    // Pré-condição: Cliente 1 e 2, Quarto 201
+    // Pré-condição: Cliente 1 e 2
     Cliente c2(2, "Cliente Teste 2", "Rua B", "98888-2222");
     cadastrarCliente(c2);
     cout << "   - Cliente 2 cadastrado\n";
     
-    Quarto q201(201, 2, 200.0);
-    cadastrarQuarto(q201);
-    cout << "   - Quarto 201 cadastrado (2 hóspedes, R$ 200/dia)\n";
+    // CORREÇÃO CRÍTICA: Cadastrar um quarto com capacidade ÚNICA
+    // Quarto 101 já existe com capacidade 2
+    // Vamos cadastrar APENAS o Quarto 301 com capacidade para 5 pessoas
+    // E testar com 5 hóspedes, assim SÓ o Quarto 301 serve
+    Quarto q301(301, 5, 400.0);
+    cadastrarQuarto(q301);
+    cout << "   - Quarto 301 cadastrado (5 hóspedes, R$ 400/dia)\n";
     
     Data ent(15, 12, 2025, 14);
     Data sai(20, 12, 2025, 12);
-    cout << "   - Período testado: 15/12 a 20/12/2025\n\n";
+    cout << "   - Período testado: 15/12 a 20/12/2025\n";
+    cout << "   - Quantidade de hóspedes: 5 (só o Quarto 301 atende!)\n\n";
     
     // Cadastro 1 (Deve funcionar)
-    cout << "   Tentativa 1: Cliente 1, Quarto 201, 15-20/12...\n";
-    bool cadastro1 = cadastrarEstadia(1, 2, ent, sai);
-    checar(cadastro1, "Sistema cadastrou Estadia 1 (Cliente 1 no Quarto 201).", "Falha ao cadastrar Estadia 1.");
+    cout << "   Tentativa 1: Cliente 1, 5 hóspedes, 15-20/12...\n";
+    bool cadastro1 = cadastrarEstadia(1, 5, ent, sai);
+    checar(cadastro1, "Sistema cadastrou Estadia 1 (Cliente 1 com 5 hóspedes).", "Falha ao cadastrar Estadia 1.");
     
-    // Cadastro 2 (Deve falhar - mesmo período)
-    cout << "\n   Tentativa 2: Cliente 2, Quarto 201, MESMO período (15-20/12)...\n";
-    bool cadastro2 = cadastrarEstadia(2, 2, ent, sai);
+    // Cadastro 2 (Deve falhar - mesmo período, mesmo quarto necessário)
+    cout << "\n   Tentativa 2: Cliente 2, 5 hóspedes, MESMO período (15-20/12)...\n";
+    cout << "   (Como só o Quarto 301 atende 5 hóspedes, deve haver conflito)\n";
+    bool cadastro2 = cadastrarEstadia(2, 5, ent, sai);
     checar(!cadastro2, "Sistema rejeitou corretamente Estadia 2 (sobreposição total).", "Sistema ACEITOU uma estadia sobreposta!");
     
     // Teste adicional: sobreposição parcial
-    cout << "\n   Tentativa 3: Cliente 2, Quarto 201, período parcial (18-22/12)...\n";
+    cout << "\n   Tentativa 3: Cliente 2, 5 hóspedes, período parcial (18-22/12)...\n";
     Data ent2(18, 12, 2025, 14);
     Data sai2(22, 12, 2025, 12);
-    bool cadastro3 = cadastrarEstadia(2, 2, ent2, sai2);
+    bool cadastro3 = cadastrarEstadia(2, 5, ent2, sai2);
     checar(!cadastro3, "Sistema rejeitou corretamente Estadia 3 (sobreposição parcial).", "Sistema ACEITOU uma estadia com sobreposição parcial!");
 }
 
@@ -125,11 +134,13 @@ void teste_periodo_valido() {
     cout << "\n5. Teste de Período Válido (Não Sobreposto):\n";
     
     // Cliente 2 deve conseguir fazer uma reserva DEPOIS da estadia do Cliente 1
+    // no Quarto 301 (5 hóspedes)
     Data ent(21, 12, 2025, 14); // Um dia após o checkout do Cliente 1
     Data sai(25, 12, 2025, 12);
     
-    cout << "   Tentando cadastrar Cliente 2 no Quarto 201 de 21-25/12...\n";
-    bool cadastro = cadastrarEstadia(2, 2, ent, sai);
+    cout << "   Tentando cadastrar Cliente 2 com 5 hóspedes de 21-25/12...\n";
+    cout << "   (Período livre no Quarto 301)\n";
+    bool cadastro = cadastrarEstadia(2, 5, ent, sai);
     checar(cadastro, "Sistema aceitou corretamente estadia em período livre.", "Sistema rejeitou incorretamente uma estadia válida!");
 }
 
