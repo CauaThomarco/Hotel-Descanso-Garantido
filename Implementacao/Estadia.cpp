@@ -84,21 +84,19 @@ bool verificarDisponibilidadeQuarto(int numeroQuarto, const Data& entrada, const
         estadia.carregarDeArquivo(arquivo);
         if (arquivo.eof()) break;
 
-        // Verifica conflitos apenas com estadias ativas no mesmo quarto
         if (estadia.numeroQuarto == numeroQuarto && estadia.ativa && estadia.status == ATIVA) {
             if (periodosSeSobrepoe(entrada, saida, estadia.dataEntrada, estadia.dataSaida)) {
                 arquivo.close();
-                return false; // Há conflito
+                return false;
             }
         }
     }
     arquivo.close();
-    return true; // Sem conflitos
+    return true;
 }
 
 bool cadastrarEstadia(int codigoCliente, int qtdHospedes, const Data& entrada, const Data& saida) {
     
-    // 1. Validar Datas
     if (!entrada.validar() || !saida.validar()) {
         cout << "Erro: Datas invalidas!" << endl;
         return false;
@@ -108,13 +106,11 @@ bool cadastrarEstadia(int codigoCliente, int qtdHospedes, const Data& entrada, c
         return false;
     }
     
-    // 2. Validar Cliente
     if (!clienteExiste(codigoCliente)) {
         cout << "Erro: Cliente nao encontrado!" << endl;
         return false;
     }
     
-    // 3. Buscar Quarto disponível
     Quarto quarto = buscarQuartoDisponivel(qtdHospedes, entrada, saida);
     
     if (quarto.numero == -1) {
@@ -123,7 +119,6 @@ bool cadastrarEstadia(int codigoCliente, int qtdHospedes, const Data& entrada, c
         return false;
     }
     
-    // 4. Criar e salvar a estadia
     int codigoEstadia = gerarCodigoEstadia();
     Estadia estadia(codigoEstadia, entrada, saida, codigoCliente, quarto.numero);
     
@@ -135,10 +130,6 @@ bool cadastrarEstadia(int codigoCliente, int qtdHospedes, const Data& entrada, c
     
     estadia.salvarEmArquivo(arquivo);
     arquivo.close();
-
-    // CORREÇÃO: NÃO alterar o status do quarto automaticamente
-    // O status só deve mudar quando o hóspede fizer check-in/check-out físico
-    // Isso estava causando o bug de não permitir reservas futuras
 
     cout << "\n=== ESTADIA CADASTRADA COM SUCESSO! ===" << endl;
     cout << "Codigo da Estadia: " << codigoEstadia << endl;

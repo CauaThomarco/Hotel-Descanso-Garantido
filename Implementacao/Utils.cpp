@@ -1,11 +1,9 @@
 #include "../Headers/Utils.h"
-// --- INCLUDES NECESSÁRIOS (Faltando) ---
 #include <iostream>
 #include <iomanip>
 #include <limits>
 #include <string>
 
-// --- NAMESPACE (Faltando) ---
 using namespace std;
 
 
@@ -71,21 +69,17 @@ bool Data::operator>=(const Data& outra) const {
 
 // Funções utilitárias
 void limparBuffer() {
-    // Limpa o buffer de entrada do cin
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
 void pausar() {
     cout << "\nPressione ENTER para continuar...";
-    limparBuffer(); // Garante que o buffer esteja limpo
-    cin.get();      // Espera o usuário pressionar ENTER
+    limparBuffer(); 
+    cin.get();
 }
 
 int calcularDiarias(const Data& entrada, const Data& saida) {
-    // Lógica de cálculo de diárias (simplificada)
-    // Isso pode ser melhorado com bibliotecas de data/hora, 
-    // mas para o TP, uma aproximação é suficiente.
     
     long diasEntrada = entrada.ano * 365 + entrada.dia;
     int diasPorMes[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -101,9 +95,7 @@ int calcularDiarias(const Data& entrada, const Data& saida) {
     for (int m = 1; m < saida.mes; ++m) diasSaida += diasPorMes[m];
     
     int diarias = diasSaida - diasEntrada;
-    
-    // PDF: "findam às 12h00 do dia seguinte."
-    // Se a lógica da data estiver correta, a subtração é suficiente.
+
     
     return diarias > 0 ? diarias : 1; // Garante pelo menos 1 diária
 }
@@ -127,11 +119,11 @@ Data lerData(const string& mensagem) {
         
         if (!data.validar()) {
             cout << "\nData invalida! Tente novamente.\n" << endl;
-            limparBuffer(); // Limpa o cin se a entrada for inválida
+            limparBuffer();
         }
     } while (!data.validar());
     
-    limparBuffer(); // Limpa o '\n' restante após a leitura da hora
+    limparBuffer();
     return data;
 }
 
@@ -142,16 +134,8 @@ Data lerData(const string& mensagem) {
  * Período 2: [s2, e2] (Start2, End2)
  */
 bool periodosSeSobrepoe(const Data& s1, const Data& e1, const Data& s2, const Data& e2) {
-    // Para esta lógica, usamos os operadores '<' e '>' 
-    // que já implementamos para a struct Data.
-
-    // A lógica mais fácil é verificar se eles NÃO se sobrepõem.
-    // Isso acontece se:
-    // 1. O período 1 termina ANTES do período 2 começar (e1 < s2)
-    // 2. O período 2 termina ANTES do período 1 começar (e2 < s1)
     
     bool naoSeSobrepoe = (e1 < s2) || (e2 < s1);
 
-    // Se eles NÃO "não se sobrepõem", significa que eles SE sobrepõem.
     return !naoSeSobrepoe;
 }

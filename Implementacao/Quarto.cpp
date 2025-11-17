@@ -1,30 +1,24 @@
 #include "../Headers/Quarto.h"
-#include "../Headers/Utils.h" // Para pausar, etc.
-#include "../Headers/Estadia.h" // Para Estadia e Data
-
-// --- INCLUDES NECESSÁRIOS (Faltando) ---
+#include "../Headers/Utils.h"
+#include "../Headers/Estadia.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
-#include <cstring>   // Para memset
-#include <iomanip> // Para setprecision
+#include <cstring>
+#include <iomanip>
 
 using namespace std;
 
 // --- ARQUIVO DE DADOS ---
 const string ARQUIVO_QUARTOS = "quartos.bin";
 
-// --- IMPLEMENTAÇÃO DOS CONSTRUTORES ---
 Quarto::Quarto() 
     : numero(0), maxHospedes(0), valorDiaria(0.0), status(DESOCUPADO), ativo(true) {
-    // Construtor padrão
 }
 
-// CORREÇÃO: Usando maxHospedes e double
 Quarto::Quarto(int num, int maxHosp, double valor)
     : numero(num), maxHospedes(maxHosp), valorDiaria(valor), status(DESOCUPADO), ativo(true) {
-    // Construtor parametrizado
 }
 
 // --- IMPLEMENTAÇÃO DOS MÉTODOS ---
@@ -71,14 +65,12 @@ bool cadastrarQuarto(const Quarto& quarto) {
     return true;
 }
 
-// --- CORREÇÃO DE LÓGICA E ASSINATURA ---
-// Retorna um OBJETO Quarto, não um ponteiro.
 Quarto buscarQuartoPorNumero(int numero) {
     ifstream arquivo(ARQUIVO_QUARTOS, ios::binary);
     Quarto quarto;
 
     if (!arquivo.is_open()) {
-        quarto.numero = -1; // Sinaliza "não encontrado"
+        quarto.numero = -1;
         return quarto;
     }
 
@@ -88,12 +80,12 @@ Quarto buscarQuartoPorNumero(int numero) {
 
         if (quarto.numero == numero && quarto.ativo) {
             arquivo.close();
-            return quarto; // Encontrou
+            return quarto;
         }
     }
 
     arquivo.close();
-    quarto.numero = -1; // Sinaliza "não encontrado"
+    quarto.numero = -1;
     return quarto;
 }
 
@@ -151,14 +143,11 @@ void listarQuartosDisponiveis() {
     arquivo.close();
 }
 
-// --- CORREÇÃO DE LÓGICA ---
-// Agora usa o novo 'buscarQuartoPorNumero'
 bool quartoExiste(int numero) {
     Quarto quarto = buscarQuartoPorNumero(numero);
-    return (quarto.numero != -1); // Se não for -1, existe
+    return (quarto.numero != -1);
 }
 
-// Esta função é complexa, pois requer reescrever o arquivo.
 bool alterarStatusQuarto(int numero, StatusQuarto novoStatus) {
     ifstream arquivoLeitura(ARQUIVO_QUARTOS, ios::binary);
     if (!arquivoLeitura.is_open()) {
@@ -166,7 +155,6 @@ bool alterarStatusQuarto(int numero, StatusQuarto novoStatus) {
         return false;
     }
 
-    // Lê todos os quartos para a memória
     vector<Quarto> quartos;
     Quarto quarto;
     bool quartoEncontrado = false;
@@ -176,10 +164,10 @@ bool alterarStatusQuarto(int numero, StatusQuarto novoStatus) {
         if (arquivoLeitura.eof()) break;
 
         if (quarto.numero == numero && quarto.ativo) {
-            quarto.status = novoStatus; // Altera o status na memória
+            quarto.status = novoStatus;
             quartoEncontrado = true;
         }
-        quartos.push_back(quarto); // Adiciona ao vetor
+        quartos.push_back(quarto);
     }
     arquivoLeitura.close();
 
@@ -188,11 +176,10 @@ bool alterarStatusQuarto(int numero, StatusQuarto novoStatus) {
         return false;
     }
 
-    // Reescreve o arquivo inteiro com os dados do vetor
     ofstream arquivoEscrita(ARQUIVO_QUARTOS, ios::binary | ios::trunc);
     if (!arquivoEscrita.is_open()) {
         cout << "Erro fatal: Nao foi possivel reescrever o arquivo de quartos." << endl;
-        return false; // Perigo: os dados podem ter sido perdidos
+        return false;
     }
 
     for (const auto& q : quartos) {
@@ -206,7 +193,7 @@ bool alterarStatusQuarto(int numero, StatusQuarto novoStatus) {
 Quarto buscarQuartoDisponivel(int qtdHospedes, const Data& entrada, const Data& saida) {
     ifstream arqQuartos(ARQUIVO_QUARTOS, ios::binary);
     Quarto quarto;
-    quarto.numero = -1; // Retorno padrão "não encontrado"
+    quarto.numero = -1;
 
     if (!arqQuartos.is_open()) {
         cout << "Arquivo de quartos não existe." << endl;
@@ -217,22 +204,16 @@ Quarto buscarQuartoDisponivel(int qtdHospedes, const Data& entrada, const Data& 
         quarto.carregarDeArquivo(arqQuartos);
         if (arqQuartos.eof()) break;
 
-        // 1ª Condição: Quarto ativo e com capacidade
         if (quarto.ativo && quarto.maxHospedes >= qtdHospedes) {
             
-            // CORREÇÃO CRÍTICA: Sempre verificar disponibilidade no período
-            // independente do status atual do quarto
-            
-            // Usa a função verificarDisponibilidadeQuarto que já existe em Estadia.cpp
             if (verificarDisponibilidadeQuarto(quarto.numero, entrada, saida)) {
                 arqQuartos.close();
-                return quarto; // Encontrou um quarto disponível!
+                return quarto;
             }
-            // Se não está disponível para o período, continua procurando
         }
     }
 
     arqQuartos.close();
-    quarto.numero = -1; // Nenhum quarto encontrado
+    quarto.numero = -1;
     return quarto;
 }

@@ -1,6 +1,4 @@
-// -------------------------------------------------
-// Bibliotecas Padrão
-// -------------------------------------------------
+// Bibliotecas
 #include <iostream>
 #include <string>
 #include <vector>
@@ -8,9 +6,8 @@
 #include <iomanip>
 #include <fstream>
 #include <windows.h>
-// -------------------------------------------------
+
 // Cabeçalhos do Projeto
-// -------------------------------------------------
 #include "Headers/Clientes.h"
 #include "Headers/Funcionarios.h"
 #include "Headers/Quarto.h"
@@ -18,8 +15,6 @@
 #include "Headers/Utils.h" // Para pausar(), limparBuffer(), lerData()
 
 using namespace std;
-
-// --- Funções de Menu (Corrigidas para passar argumentos) ---
 
 void exibirMenuPrincipal() {
     cout << "\n";
@@ -52,7 +47,7 @@ void menuCadastrarCliente() {
     
     string nome, endereco, telefone;
     
-    limparBuffer(); // Limpa o buffer antes de ler strings
+    limparBuffer();
     cout << "Nome: ";
     getline(cin, nome);
     
@@ -65,7 +60,7 @@ void menuCadastrarCliente() {
     // Cria o objeto Cliente usando o construtor
     Cliente cliente(codigo, nome, endereco, telefone);
     
-    // Passa o objeto pronto para a função
+    // Passando o objeto pronto para a função
     cadastrarCliente(cliente);
     pausar();
 }
@@ -166,7 +161,7 @@ void menuPesquisarCliente() {
         cin >> codigo;
         
         Cliente cliente = buscarClientePorCodigo(codigo);
-        if (cliente.codigo != -1) { // -1 significa "não encontrado"
+        if (cliente.codigo != -1) {
             cliente.exibir();
         } else {
             cout << "Cliente não encontrado!" << endl;
@@ -205,7 +200,7 @@ void menuPesquisarFuncionario() {
         cin >> codigo;
         
         Funcionario funcionario = buscarFuncionarioPorCodigo(codigo);
-        if (funcionario.codigo != -1) { // -1 significa "não encontrado"
+        if (funcionario.codigo != -1) {
             funcionario.exibir();
         } else {
             cout << "Funcionário não encontrado!" << endl;
@@ -276,7 +271,6 @@ void menuCalcularPontosFidelidade() {
     if (cliente.codigo == -1) {
         cout << "Cliente não encontrado!" << endl;
     } else {
-        // Chama a função do módulo Estadia
         int pontos = calcularPontosFidelidade(codigo);
         int totalDiarias = calcularTotalDiariasCliente(codigo);
         
@@ -288,8 +282,6 @@ void menuCalcularPontosFidelidade() {
     
     pausar();
 }
-
-// --- Função Main (Loop Principal) ---
 
 int main() {
     SetConsoleOutputCP(CP_UTF8); 
@@ -303,7 +295,7 @@ int main() {
         if (cin.fail()) {
             cin.clear();
             limparBuffer();
-            opcao = -1; // Força erro no default
+            opcao = -1;
         }
         
         switch (opcao) {

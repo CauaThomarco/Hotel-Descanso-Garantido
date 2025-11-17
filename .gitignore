@@ -9,7 +9,7 @@ hotel.exe
 *.obj
 
 # Arquivos de dados binários (podem ser incluídos separadamente para testes)
-*.dat
+*.bin
 
 # Arquivos de compilação
 *.dSYM/
@@ -64,5 +64,5 @@ Makefile
 *~
 
 # Arquivos de teste temporários
-test_*.dat
-temp_*.dat
+test_*.bin
+temp_*.bin
