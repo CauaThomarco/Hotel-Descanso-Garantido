@@ -34,8 +34,10 @@ void Estadia::exibir() const {
     cout << "Quarto (Numero): " << numeroQuarto << endl;
     cout << "Data de entrada: ";
     dataEntrada.exibir();
+    cout << endl;
     cout << "Data de saida: ";
     dataSaida.exibir();
+    cout << endl;
     cout << "Diarias: " << quantidadeDiarias << endl;
     cout << fixed << setprecision(2);
     cout << "Valor total: R$ " << calcularValorTotal() << endl;
@@ -130,6 +132,9 @@ bool cadastrarEstadia(int codigoCliente, int qtdHospedes, const Data& entrada, c
     
     estadia.salvarEmArquivo(arquivo);
     arquivo.close();
+    
+    // CORREÇÃO: Atualiza o status do quarto para OCUPADO
+    alterarStatusQuarto(quarto.numero, OCUPADO);
 
     cout << "\n=== ESTADIA CADASTRADA COM SUCESSO! ===" << endl;
     cout << "Codigo da Estadia: " << codigoEstadia << endl;
@@ -151,6 +156,7 @@ void darBaixaEstadia(int codigoEstadia) {
     Estadia estadia;
     bool encontrada = false;
     double valorTotal = 0.0;
+    int numeroQuartoLiberado = -1;
 
     while (arquivoLeitura.peek() != EOF) {
         estadia.carregarDeArquivo(arquivoLeitura);
@@ -159,6 +165,7 @@ void darBaixaEstadia(int codigoEstadia) {
         if (estadia.codigoEstadia == codigoEstadia && estadia.ativa && estadia.status == ATIVA) {
             estadia.status = FINALIZADA;
             valorTotal = estadia.calcularValorTotal();
+            numeroQuartoLiberado = estadia.numeroQuarto;
             encontrada = true;
         }
         estadias.push_back(estadia);
@@ -175,10 +182,16 @@ void darBaixaEstadia(int codigoEstadia) {
         e.salvarEmArquivo(arquivoEscrita);
     }
     arquivoEscrita.close();
+    
+    // CORREÇÃO: Atualiza o status do quarto para DESOCUPADO
+    if (numeroQuartoLiberado != -1) {
+        alterarStatusQuarto(numeroQuartoLiberado, DESOCUPADO);
+    }
 
     cout << "\n=== BAIXA REALIZADA COM SUCESSO! ===" << endl;
     cout << fixed << setprecision(2);
     cout << "Valor total a ser pago: R$ " << valorTotal << endl;
+    cout << "Quarto " << numeroQuartoLiberado << " agora esta disponivel." << endl;
 }
 
 vector<Estadia> listarEstadiaCliente(int codigoCliente) {
